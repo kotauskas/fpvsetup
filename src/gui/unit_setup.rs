@@ -81,10 +81,9 @@ impl UnitSetup {
             let app_per_real = length_from_unit(app_per_real, app_per_real_unit);
             let real_per_app = 1.0 / convert_units(app_per_real, real_per_app_unit);
             p.real_per_app_input.set_value(&friendly_ftoa(real_per_app));
-
-            drop(_p);
-            OutputTabs::update(ui);
         }
+        drop(_p);
+        OutputTabs::update(ui);
     }
     fn real_per_app_change_handler(ui: &RcUi) {
         let mut _p = ui.borrow_mut();
@@ -95,10 +94,9 @@ impl UnitSetup {
             let real_per_app = length_from_unit(real_per_app, real_per_app_unit);
             let app_per_real = 1.0 / convert_units(real_per_app, app_per_real_unit);
             p.app_per_real_input.set_value(&friendly_ftoa(app_per_real));
-
-            drop(_p);
-            OutputTabs::update(ui);
         }
+        drop(_p);
+        OutputTabs::update(ui);
     }
 }
 impl LayoutGen<'_> for UnitSetup {

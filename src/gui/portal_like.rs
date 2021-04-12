@@ -37,10 +37,13 @@ impl PortalLike {
         let move_unit_selector =
             build_unit_selector(&move_output, Some(Unit::Meters), Plural, false);
 
-        let move_label_2 = Frame::default().with_label("(");
+        let mut move_label_2 = Frame::default().with_label("(");
+        move_label_2.hide();
         let mut move_units_output = FloatInput::default();
         move_units_output.set_readonly(true);
-        let move_label_3 = Frame::default().with_label("units)");
+        move_units_output.hide();
+        let mut move_label_3 = Frame::default().with_label("units)");
+        move_label_3.hide();
 
         containing_group.end();
 
@@ -86,9 +89,7 @@ impl PortalLike {
         let height = mp.width_input.value().parse::<f64>();
         let distance = mp.distance_input.value().parse::<f64>();
         let app_per_real = us.app_per_real_input.value().parse::<f64>();
-        if let (Ok(width), Ok(height), Ok(distance), Ok(app_per_real)) =
-            (width, height, distance, app_per_real)
-        {
+        if let (Ok(width), Ok(height), Ok(distance)) = (width, height, distance) {
             let move_unit = pl.move_unit_selector.value().try_into().unwrap();
             let width_unit = mp.width_unit_selector.value().try_into().unwrap();
             let height_unit = mp.height_unit_selector.value().try_into().unwrap();
@@ -110,8 +111,17 @@ impl PortalLike {
                 DEGREE_SIGN,
             ));
             pl.move_output.set_value(&friendly_ftoa(mov));
-            pl.move_units_output
-                .set_value(&friendly_ftoa(mov * app_per_real));
+            if let Ok(app_per_real) = app_per_real {
+                pl.move_units_output
+                    .set_value(&friendly_ftoa(mov * app_per_real));
+                pl.move_label_2.show();
+                pl.move_units_output.show();
+                pl.move_label_3.show();
+            } else {
+                pl.move_label_2.hide();
+                pl.move_units_output.hide();
+                pl.move_label_3.hide();
+            }
         }
     }
 }
