@@ -5,23 +5,24 @@ on: [push, pull_request]
 jobs:
   check_and_test:
     strategy:
-        matrix:
-          toolchain: ["1.46.0", nightly]
-    
-    name: On ${{ matrix.toolchain }}
-    runs-on: ubuntu-latest
+      matrix:
+        toolchain: ["1.46.0", nightly]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    name: On ${{ matrix.toolchain }}, ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
-      
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
-            profile: minimal
-            override: true
-            components: clippy
-      
+          toolchain: ${{ matrix.toolchain }}
+          profile: minimal
+          override: true
+          components: clippy
+
       - name: Run Clippy
         uses: actions-rs/cargo@v1
         with:
@@ -31,7 +32,7 @@ jobs:
           args: "-- -A clippy::unknown_clippy_lints"
         env:
           RUSTFLAGS: -D warnings
-      
+
       - name: Run tests
         uses: actions-rs/cargo@v1
         with:
