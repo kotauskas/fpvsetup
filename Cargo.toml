@@ -15,6 +15,10 @@ categories = ["game-development", "mathematics"]
 
 autobins = false
 
+[package.metadata.winres]
+OriginalFilename = "fpvsetup.exe"
+FileDescription = "FPVSetup"
+
 [[bin]]
 name = "fpvsetup"
 path = "src/gui/main.rs"
@@ -22,7 +26,7 @@ required-features = ["gui"]
 
 [features]
 default = ["gui"]
-gui = ["fltk", "native-dialog", "winapi", "edid"]
+gui = ["fltk", "native-dialog", "winapi", "edid", "winres"]
 
 [dependencies]
 fltk = { version = "0.16", features = ["fltk-bundled"], optional = true }
@@ -32,3 +36,6 @@ uom = "0.31"
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["setupapi", "handleapi", "winreg"], optional = true }
 edid = { package = "edid-rs", version = "0.1", optional = true }
+
+[target.'cfg(windows)'.build-dependencies]
+winres = { version = "0.1", optional = true }
