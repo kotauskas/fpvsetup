@@ -1,3 +1,5 @@
+#![cfg_attr(not(windows), allow(unused_imports))]
+
 use fpvsetup::MonitorDimensions;
 use std::io::{self, Cursor, ErrorKind};
 use uom::si::{f64::Length, length::centimeter};
