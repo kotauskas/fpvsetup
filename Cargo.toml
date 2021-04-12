@@ -22,9 +22,13 @@ required-features = ["gui"]
 
 [features]
 default = ["gui"]
-gui = ["fltk", "native-dialog"]
+gui = ["fltk", "native-dialog", "winapi", "edid"]
 
 [dependencies]
 fltk = { version = "0.16", features = ["fltk-bundled"], optional = true }
 native-dialog = { version = "0.5", optional = true }
 uom = "0.31"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["setupapi", "handleapi", "winreg"], optional = true }
+edid = { package = "edid-rs", version = "0.1", optional = true }

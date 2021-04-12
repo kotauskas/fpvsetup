@@ -1,4 +1,5 @@
-#![forbid(rust_2018_idioms, unsafe_code)]
+#![forbid(rust_2018_idioms)]
+#![cfg_attr(not(windows), forbid(unsafe_code))]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use fltk::{
@@ -8,6 +9,7 @@ use fltk::{
     window::{WidgetExt, Window},
     GroupExt, InputExt, Shortcut,
 };
+use fpvsetup::MonitorDimensions;
 use native_dialog::{MessageDialog, MessageType};
 use std::{
     cell::{Cell, RefCell},
@@ -23,13 +25,14 @@ use std::{
 mod layout;
 mod focused;
 mod monitor_properties;
+mod monitors;
 mod output_tabs;
 mod portal_like;
 mod unit_setup;
 mod util;
 use {
-    focused::*, layout::*, monitor_properties::*, output_tabs::*, portal_like::*, unit_setup::*,
-    util::*,
+    focused::*, layout::*, monitor_properties::*, monitors::*, output_tabs::*, portal_like::*,
+    unit_setup::*, util::*,
 };
 
 /// The horizontal padding of the widget group as a whole.
@@ -54,10 +57,11 @@ const NATIVE_LOOKING_SCHEME: Scheme = {
 fn main() {
     let default_hook = panic::take_hook();
     panic::set_hook(Box::new(move |info| panic_hook(info, &default_hook)));
+    let monitor_dimensions = find_any_monitor_dimensions().ok();
     let mut app = App::default();
     app.set_scheme(NATIVE_LOOKING_SCHEME);
     let mut window = Window::default().with_label("FPVSetup");
-    let Size(width, height) = build_ui();
+    let Size(width, height) = build_ui(monitor_dimensions);
     window.end();
     window.set_size(width, height);
     window.set_center_screen();
@@ -75,9 +79,9 @@ pub struct Ui {
 pub type RcUi = Rc<RefCell<Option<Ui>>>;
 impl Ui {
     #[allow(clippy::new_without_default)] // Not using it
-    pub fn new() -> Self {
+    pub fn new(monitor_dimensions: Option<MonitorDimensions>) -> Self {
         let whole_ui = Rc::new(RefCell::new(None));
-        let monitor_properties = MonitorProperties::new(&whole_ui);
+        let monitor_properties = MonitorProperties::new(&whole_ui, monitor_dimensions);
         let unit_setup = UnitSetup::new(&whole_ui);
         let output_tabs = OutputTabs::new(&whole_ui);
         let built = Self {
@@ -86,6 +90,9 @@ impl Ui {
             output_tabs,
         };
         *whole_ui.borrow_mut() = Some(built.clone());
+        if monitor_dimensions.is_some() {
+            MonitorProperties::width_or_height_change_handler(&whole_ui);
+        }
         built
     }
     pub fn apply_layout(
@@ -147,8 +154,8 @@ impl<'a> LayoutGen<'a> for Ui {
 }
 make_layout!(pub UiLayout, has monitor_properties, unit_setup, output_tabs);
 
-fn build_ui() -> Size {
-    let mut ui = Ui::new();
+fn build_ui(monitor_dimensions: Option<MonitorDimensions>) -> Size {
+    let mut ui = Ui::new(monitor_dimensions);
     let monitor_properties_layout = ui.monitor_properties.generate_layout(());
     let unit_setup_layout = ui.unit_setup.generate_layout(());
     let portal_like_layout = ui.output_tabs.portal_like.generate_layout(());

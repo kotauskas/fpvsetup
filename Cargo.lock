@@ -135,6 +135,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "edid-rs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ab5fa33485cd85ac354df485819a63360fefa312fe04cffe65e6f175be1522c"
+
+[[package]]
 name = "fltk"
 version = "0.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -187,9 +193,11 @@ checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
 name = "fpvsetup"
 version = "0.1.0"
 dependencies = [
+ "edid-rs",
  "fltk",
  "native-dialog",
  "uom",
+ "winapi",
 ]
 
 [[package]]

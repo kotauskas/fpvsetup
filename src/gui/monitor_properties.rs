@@ -9,6 +9,7 @@ use crate::{
 use fltk::{frame::Frame, input::FloatInput, menu::Choice, prelude::*};
 use fpvsetup::{find_common_aspect_ratio, MonitorDimensions};
 use std::{cmp::max, convert::TryInto, rc::Rc};
+use uom::si::length::centimeter;
 
 #[derive(Clone)]
 pub struct MonitorProperties {
@@ -31,12 +32,17 @@ pub struct MonitorProperties {
 }
 impl MonitorProperties {
     /// Generates a not yet laid out monitor properties panel.
-    pub fn new(ui: &RcUi) -> Self {
+    pub fn new(ui: &RcUi, monitor_dimensions: Option<MonitorDimensions>) -> Self {
         let width_label = Frame::default().with_label("Monitor width:");
         let mut width_input = FloatInput::default();
         let r = Rc::clone(ui);
         width_input.set_callback(move || Self::width_or_height_change_handler(&r));
         width_input.set_trigger(CallbackTrigger::Changed);
+        if let Some(dim) = monitor_dimensions {
+            let [width, _] = dim.width_and_height();
+            // We know that the default is centimeters. Should be modified if the default ever changes.
+            width_input.set_value(&friendly_ftoa(width.get::<centimeter>()))
+        }
         let width_unit_selector =
             build_unit_selector(&width_input, Some(Unit::Centimeters), Plural, false);
 
@@ -45,6 +51,11 @@ impl MonitorProperties {
         let r = Rc::clone(ui);
         height_input.set_callback(move || Self::width_or_height_change_handler(&r));
         height_input.set_trigger(CallbackTrigger::Changed);
+        if let Some(dim) = monitor_dimensions {
+            let [_, height] = dim.width_and_height();
+            // Same as above.
+            height_input.set_value(&friendly_ftoa(height.get::<centimeter>()))
+        }
         let height_unit_selector =
             build_unit_selector(&height_input, Some(Unit::Centimeters), Plural, false);
 
@@ -131,7 +142,7 @@ impl MonitorProperties {
             .set_rect(layout.distance_unit_selector.with_added_pos(pos));
     }
 
-    fn width_or_height_change_handler(ui: &RcUi) {
+    pub fn width_or_height_change_handler(ui: &RcUi) {
         let mut _p = ui.borrow_mut();
         let p = &mut _p.as_mut().unwrap().monitor_properties;
         let width = p.width_input.value().parse::<f64>();
