@@ -4,10 +4,11 @@
 
 use fltk::{
     app::{App, Scheme},
+    image::PngImage,
     input::FloatInput,
     menu::{Choice, MenuExt, MenuFlag},
     window::{WidgetExt, Window},
-    GroupExt, InputExt, Shortcut,
+    GroupExt, InputExt, Shortcut, WindowExt,
 };
 use fpvsetup::MonitorDimensions;
 use native_dialog::{MessageDialog, MessageType};
@@ -44,23 +45,27 @@ const ADDED_HEIGHT: i32 = 4;
 /// The vertical padding between lines.
 const LINE_V_PADDING: i32 = 10;
 
-const NATIVE_LOOKING_SCHEME: Scheme = {
-    if cfg!(target_os = "windows") {
-        Scheme::Base
-    } else if cfg!(target_os = "macos") {
+const OPTIMAL_SCHEME: Scheme = {
+    if cfg!(target_os = "macos") {
         Scheme::Plastic
     } else {
         Scheme::Gtk
     }
 };
 
+static ICON: &[u8] = include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/icon/icon.png"));
+
 fn main() {
     let default_hook = panic::take_hook();
     panic::set_hook(Box::new(move |info| panic_hook(info, &default_hook)));
     let monitor_dimensions = find_any_monitor_dimensions().ok();
     let mut app = App::default();
-    app.set_scheme(NATIVE_LOOKING_SCHEME);
+    app.set_scheme(OPTIMAL_SCHEME);
     let mut window = Window::default().with_label("FPVSetup");
+    let icon = PngImage::from_data(ICON);
+    if let Ok(icon) = icon {
+        window.set_icon(Some(icon));
+    }
     let Size(width, height) = build_ui(monitor_dimensions);
     window.end();
     window.set_size(width, height);
