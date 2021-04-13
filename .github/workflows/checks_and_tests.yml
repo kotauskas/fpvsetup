@@ -7,7 +7,15 @@ jobs:
     strategy:
       matrix:
         toolchain: ["1.46.0", nightly]
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, macos-latest]
+        install_deps: [""]
+        include:
+          - os: ubuntu-latest
+            toolchain: "1.46.0"
+            install_deps: sudo apt install libx11-dev libpango1.0-dev
+          - os: ubuntu-latest
+            toolchain: nightly
+            install-deps: sudo apt install libx11-dev libpango1.0-dev
 
     name: On ${{ matrix.toolchain }}, ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -23,6 +31,9 @@ jobs:
           override: true
           components: clippy
 
+      - name: Install C/C++ dependencies
+        run: ${{ matrix.install_deps }}
+
       - name: Run Clippy
         uses: actions-rs/cargo@v1
         with:
@@ -32,10 +43,9 @@ jobs:
           args: "-- -A clippy::unknown_clippy_lints"
         env:
           RUSTFLAGS: -D warnings
-
-      - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-        env:
-          RUSTFLAGS: -D warnings
+      #- name: Run tests
+      #  uses: actions-rs/cargo@v1
+      #  with:
+      #    command: test
+      #  env:
+      #    RUSTFLAGS: -D warnings
