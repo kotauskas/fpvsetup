@@ -1,5 +1,5 @@
 use crate::layout::{Position, Rect, Size};
-use fltk::{draw, window::WidgetExt, WindowExt};
+use fltk::prelude::WidgetExt;
 use std::{borrow::Cow, convert::TryFrom, num::FpCategory};
 use uom::{
     si::{
@@ -107,22 +107,6 @@ impl TryFrom<i32> for Unit {
     }
 }
 
-/// Extension trait for automatically adjusting the width of a label to the width of the contained text.
-pub trait AutoLabelExt: WidgetExt + Sized {
-    /// Sets the label and width of the widget. *Assumes that the current font and font size of the `draw` subsystem is the one used for the widget, for performance.*
-    fn set_auto_label(&mut self, label: &str) {
-        let width = draw::width(label).ceil() as i32;
-        self.set_size(width, self.h());
-        self.set_label(label);
-    }
-    /// Sets the label and width of the widget with chain-call support. *Assumes that the current font and font size of the `draw` subsystem is the one used for the widget, for performance.*
-    fn with_auto_label(mut self, label: &str) -> Self {
-        self.set_auto_label(label);
-        self
-    }
-}
-impl<T: WidgetExt> AutoLabelExt for T {}
-
 pub trait PosExt: WidgetExt {
     fn set_rect(&mut self, Rect(Position(x, y), Size(w, h)): Rect) {
         self.set_size(w, h);
@@ -130,12 +114,6 @@ pub trait PosExt: WidgetExt {
     }
     fn rect(&self) -> Rect {
         Rect(Position(self.x(), self.y()), Size(self.w(), self.h()))
-    }
-    fn set_center_screen(&self)
-    where
-        Self: WindowExt + Clone,
-    {
-        self.clone().center_screen();
     }
 }
 impl<T: WidgetExt + ?Sized> PosExt for T {}

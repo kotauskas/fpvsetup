@@ -58,7 +58,7 @@ impl<'a> LayoutGen<'a> for OutputTabs {
         let aggregate_width = [pl_w, fo_w, fill_width - GROUP_H_PADDING * 2]
             .iter()
             .copied()
-            .reduce(max)
+            .max()
             .unwrap();
         let aggregate_height = max(pl_h, fo_h) + TABS_HEADER_HEIGHT;
 

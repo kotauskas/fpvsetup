@@ -8,7 +8,7 @@ use crate::{
 };
 use fltk::{frame::Frame, input::FloatInput, menu::Choice, prelude::*};
 use fpvsetup::{find_common_aspect_ratio, MonitorDimensions};
-use std::{cmp::max, convert::TryInto, rc::Rc};
+use std::{convert::TryInto, rc::Rc};
 use uom::si::length::centimeter;
 
 #[derive(Clone)]
@@ -281,7 +281,7 @@ impl LayoutGen<'_> for MonitorProperties {
         let total_width = [width_l1, width_l2, width_l3]
             .iter()
             .copied()
-            .reduce(max)
+            .max()
             .unwrap();
         let total_height = height_l1
             + height_l2

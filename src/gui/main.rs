@@ -69,7 +69,8 @@ fn main() {
     let Size(width, height) = build_ui(monitor_dimensions);
     window.end();
     window.set_size(width, height);
-    window.set_center_screen();
+    // this is why you shouldn't have a struct as a builder of itself
+    window = window.center_screen();
     window.show();
     if let Err(error) = app.run() {
         eprintln!("Fatal error: {:?}", error);
@@ -146,7 +147,7 @@ impl<'a> LayoutGen<'a> for Ui {
         let width = [monitor_properties.w(), unit_setup.w(), output_tabs.w()]
             .iter()
             .copied()
-            .reduce(max)
+            .max()
             .unwrap();
         let total_size = Size(width, height);
         UiLayout {
